@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmotionDecoder - Social Media Sentiment Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-section {
+            padding: 100px 0;
+            background-color: #f8f9fa;
+        }
+
+        .hero-section h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .features-section {
+            background-color: #fff;
+            padding: 80px 0;
+        }
+
+        .feature-card {
+            margin-bottom: 20px;
+        }
+
+        .feature-card .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+
+        .feature-card .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-card .card-body {
+            padding: 30px;
+        }
+
+        /* Analysis Page Specific */
+        .analysis-container {
+            max-width: 800px;
+            margin: 50px auto;
+            flex: 1;
+        }
+
+        .text-input {
+            min-height: 200px;
+        }
+
+        .result-container {
+            margin-top: 40px;
+            padding: 30px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            display: none;
+        }
+
+        .sentiment-visualization {
+            height: 300px;
+            margin: 30px 0;
+        }
+
+        .sentiment-positive {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .sentiment-negative {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .sentiment-neutral {
+            color: #6c757d;
+            font-weight: bold;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 60px 0;
+                text-align: center;
+            }
+            
+            .hero-section img {
+                margin-top: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">EmotionDecoder</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('home')">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('analyze')">Analyze</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('about')">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Sections -->
+    <div class="container-fluid">
+        <!-- Home Section -->
+        <section id="home-section" class="section-content">
+            <div class="hero-section">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h1>Decode Emotions in Social Media</h1>
+                            <p class="lead">Our advanced sentiment analysis tool helps you understand the emotional tone behind social media conversations.</p>
+                            <button class="btn btn-primary btn-lg" onclick="showSection('analyze')">Try It Now</button>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="https://via.placeholder.com/600x400" alt="Sentiment Analysis" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-section">
+                <div class="container">
+                    <h2 class="text-center mb-5">Key Features</h2>
+                    <div class="row">
+                        <div class="col-md-4 feature-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Real-time Analysis</h5>
+                                    <p class="card-text">Get instant sentiment analysis of any social media post or conversation.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 feature-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Emotion Breakdown</h5>
+                                    <p class="card-text">Detailed emotion categorization beyond simple positive/negative.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 feature-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Trend Visualization</h5>
+                                    <p class="card-text">Track sentiment trends over time with interactive charts.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analyze Section -->
+        <section id="analyze-section" class="section-content" style="display: none;">
+            <div class="analysis-container">
+                <h1 class="text-center mb-4">Sentiment Analysis</h1>
+                
+                <form id="analyzeForm">
+                    <div class="mb-3">
+                        <label for="textInput" class="form-label">Enter social media text or URL</label>
+                        <textarea class="form-control text-input" id="textInput" rows="6" required></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Analyze</button>
+                    </div>
+                </form>
+                
+                <div id="loadingSpinner" class="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Analyzing text...</p>
+                </div>
+                
+                <div id="resultContainer" class="result-container">
+                    <h2>Analysis Results</h2>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3>Overall Sentiment: <span id="sentimentResult"></span></h3>
+                            <p>Confidence: <span id="confidenceScore"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="sentimentVisualization" class="sentiment-visualization">
+                                <canvas id="sentimentChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="mt-4">Emotion Breakdown</h3>
+                    <div id="emotionChart" class="emotion-chart">
+                        <canvas id="emotionBreakdownChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about-section" class="section-content" style="display: none;">
+            <div class="container py-5">
+                <h1 class="text-center mb-4">About EmotionDecoder</h1>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3>Our Mission</h3>
+                        <p>EmotionDecoder aims to provide powerful yet accessible sentiment analysis tools to help businesses and individuals understand the emotional context of social media conversations.</p>
+                        
+                        <h3 class="mt-4">How It Works</h3>
+                        <p>Our system uses natural language processing and machine learning algorithms to analyze text and determine the emotional tone and sentiment behind social media posts and conversations.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h3>Technology Stack</h3>
+                        <ul>
+                            <li>Python Flask backend</li>
+                            <li>Natural Language Processing</li>
+                            <li>Machine Learning Models</li>
+                            <li>JavaScript Visualization</li>
+                            <li>Responsive Web Design</li>
+                        </ul>
+                        
+                        <h3 class="mt-4">Contact Us</h3>
+                        <p>Email: info@emotiondecoder.com</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2023 EmotionDecoder. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="#" class="text-white me-3">Privacy Policy</a>
+                    <a href="#" class="text-white">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let sentimentChart = null;
+        let emotionChart = null;
+
+        // Show specific section and hide others
+        function showSection(sectionId) {
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            document.getElementById(`${sectionId}-section`).style.display = 'block';
+            
+            // Reset analysis results when switching to analyze section
+            if (sectionId === 'analyze') {
+                document.getElementById('resultContainer').style.display = 'none';
+                document.getElementById('textInput').value = '';
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Initialize charts
+        function initCharts() {
+            const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+            const emotionCtx = document.getElementById('emotionBreakdownChart').getContext('2d');
+            
+            // Destroy existing charts if they exist
+            if (sentimentChart) sentimentChart.destroy();
+            if (emotionChart) emotionChart.destroy();
+            
+            // Create placeholder charts
+            sentimentChart = new Chart(sentimentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            '#28a745',
+                            '#dc3545',
+                            '#6c757d'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            emotionChart = new Chart(emotionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Joy', 'Anger', 'Sadness', 'Fear', 'Surprise'],
+                    datasets: [{
+                        label: 'Emotion Intensity',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            '#ffc107',
+                            '#dc3545',
+                            '#17a2b8',
+                            '#6f42c1',
+                            '#fd7e14'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        // Analyze text sentiment
+        async function analyzeSentiment(text) {
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('resultContainer').style.display = 'none';
+            
+            try {
+                // In a real implementation, this would call your Flask backend
+                // For this demo, we'll simulate an API response
+                const response = await simulateApiCall(text);
+                
+                // Display results
+                displayResults(response);
+                
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').style.display = 'none';
+            } catch (error) {
+                console.error('Error analyzing text:', error);
+                document.getElementById('loadingSpinner').style.display = 'none';
+                alert('An error occurred while analyzing the text. Please try again.');
+            }
+        }
+
+        // Simulate API call to backend
+        function simulateApiCall(text) {
+            return new Promise((resolve) => {
+                // Simple sentiment analysis
+                const positiveWords = ['happy', 'joy', 'love', 'great', 'awesome', 'fantastic', 'wonderful'];
+                const negativeWords = ['sad', 'angry', 'hate', 'terrible', 'awful', 'horrible', 'bad'];
+                
+                const words = text.toLowerCase().split(/\s+/);
+                let positiveCount = 0;
+                let negativeCount = 0;
+                
+                words.forEach(word => {
+                    if (positiveWords.includes(word)) positiveCount++;
+                    if (negativeWords.includes(word)) negativeCount++;
+                });
+                
+                // Determine sentiment
+                let sentiment, polarity;
+                if (positiveCount > negativeCount) {
+                    sentiment = 'positive';
+                    polarity = Math.min(0.9, positiveCount / words.length * 2);
+                } else if (negativeCount > positiveCount) {
+                    sentiment = 'negative';
+                    polarity = Math.min(0.9, negativeCount / words.length * 2);
+                } else {
+                    sentiment = 'neutral';
+                    polarity = 0.5;
+                }
+                
+                // Generate emotion breakdown
+                const emotions = {
+                    joy: sentiment === 'positive' ? Math.random() * 0.5 + 0.4 : Math.random() * 0.3,
+                    anger: sentiment === 'negative' ? Math.random() * 0.5 + 0.3 : Math.random() * 0.2,
+                    sadness: sentiment === 'negative' ? Math.random() * 0.5 + 0.2 : Math.random() * 0.3,
+                    fear: Math.random() * 0.4,
+                    surprise: Math.random() * 0.3
+                };
+                
+                // Normalize emotions to sum to ~1
+                const total = Object.values(emotions).reduce((sum, val) => sum + val, 0);
+                for (let emotion in emotions) {
+                    emotions[emotion] = emotions[emotion] / total;
+                }
+                
+                // Simulate network delay
+                setTimeout(() => {
+                    resolve({
+                        sentiment,
+                        confidence: polarity,
+                        emotions
+                    });
+                }, 1000);
+            });
+        }
+
+        // Display analysis results
+        function displayResults(analysis) {
+            // Update sentiment result
+            const sentimentResult = document.getElementById('sentimentResult');
+            sentimentResult.textContent = analysis.sentiment;
+            sentimentResult.className = 'sentiment-' + analysis.sentiment;
+            
+            // Update confidence score
+            document.getElementById('confidenceScore').textContent = 
+                (analysis.confidence * 100).toFixed(0) + '%';
+            
+            // Update sentiment chart
+            if (analysis.sentiment === 'positive') {
+                sentimentChart.data.datasets[0].data = [analysis.confidence * 100, 0, 0];
+            } else if (analysis.sentiment === 'negative') {
+                sentimentChart.data.datasets[0].data = [0, analysis.confidence * 100, 0];
+            } else {
+                sentimentChart.data.datasets[0].data = [0, 0, 100];
+            }
+            sentimentChart.update();
+            
+            // Update emotion chart
+            emotionChart.data.datasets[0].data = [
+                analysis.emotions.joy * 100,
+                analysis.emotions.anger * 100,
+                analysis.emotions.sadness * 100,
+                analysis.emotions.fear * 100,
+                analysis.emotions.surprise * 100
+            ];
+            emotionChart.update();
+            
+            // Show results
+            document.getElementById('resultContainer').style.display = 'block';
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts
+            initCharts();
+            
+            // Set up form submission
+            const analyzeForm = document.getElementById('analyzeForm');
+            if (analyzeForm) {
+                analyzeForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const text = document.getElementById('textInput').value.trim();
+                    
+                    if (text) {
+                        analyzeSentiment(text);
+                    }
+                });
+            }
+            
+            // Show home section by default
+            showSection('home');
+        });
+    </script>
+</body>
+</html>
